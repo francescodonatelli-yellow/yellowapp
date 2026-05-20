@@ -95,26 +95,7 @@ window._fsListen = (col, cb) => {
   });
 };
 
-// ── Auth state listener ──
-auth.onAuthStateChanged(async (firebaseUser) => {
-  if (firebaseUser) {
-    const email = firebaseUser.email.toLowerCase();
-    const profile = window.USERS[email];
-    if (!profile) { auth.signOut(); return; }
-    window.currentUser = { email, ...profile };
-    startFirestoreListeners();
-    if (profile.isAdmin) await seedIfEmpty();
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app').style.display = 'flex';
-    window.initApp();
-  } else {
-    window.currentUser = null;
-    stopFirestoreListeners();
-    _communications = []; _quotes = []; _documents = [];
-    document.getElementById('app').style.display = 'none';
-    document.getElementById('login-screen').style.display = 'flex';
-  }
-});
+// Auth listener avviato alla fine del file (dopo che tutte le funzioni sono definite)
 </script>
 <style>
 :root {
@@ -1886,5 +1867,47 @@ if (isIOS() && !isInStandaloneMode()) {
 }
 </script>
 
+
+// ── Esponi funzioni globali chiamate dall'HTML ──
+window.doLogin              = doLogin;
+window.doLogout             = doLogout;
+window.changePwd            = changePwd;
+window.addComm              = addComm;
+window.deleteComm           = deleteComm;
+window.addQuota             = addQuota;
+window.deleteQuota          = deleteQuota;
+window.deleteDoc            = deleteDoc;
+window.handleUpload         = handleUpload;
+window.importMovimentiXLS   = importMovimentiXLS;
+window.editSaldoIniziale    = editSaldoIniziale;
+window.renderMovements      = renderMovements;
+window.clearFilters         = clearFilters;
+window.closeModal           = closeModal;
+window.renderCondomini      = renderCondomini;
+window.copyPwd              = function(){};
+window.navigate             = navigate;
+
+<script>
+// ── Auth state listener (avviato dopo che tutte le funzioni sono definite) ──
+auth.onAuthStateChanged(async (firebaseUser) => {
+  if (firebaseUser) {
+    const email = firebaseUser.email.toLowerCase();
+    const profile = window.USERS[email];
+    if (!profile) { auth.signOut(); return; }
+    window.currentUser = { email, ...profile };
+    startFirestoreListeners();
+    if (profile.isAdmin) await seedIfEmpty();
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'flex';
+    window.initApp();
+  } else {
+    window.currentUser = null;
+    stopFirestoreListeners();
+    _communications = []; _quotes = []; _documents = [];
+    document.getElementById('app').style.display = 'none';
+    document.getElementById('login-screen').style.display = 'flex';
+  }
+});
+</script>
 </body>
 </html>
